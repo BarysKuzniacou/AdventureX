@@ -7,6 +7,10 @@ public class Story {
     GameScreen gs;
     String nextPosition_1, nextPosition_2, nextPosition_3, nextPosition_4;
 
+    Equipment equipment = new Equipment();
+
+    Сharacteristics сharacteristics = new Сharacteristics();
+
     public Story(GameScreen gs) {
         this.gs = gs;
     }
@@ -25,8 +29,14 @@ public class Story {
             case "plant" :
                 plant();
                 break;
+            case "gargoyle" :
+                gargoyle();
+                break;
             case "sword" :
-                sword(); // 8:25 https://www.youtube.com/watch?v=Lr3hj2eNf5I&list=PL_QPQmz5C6WVWGhGVlT25UGYFUt7k9DGX&index=8
+                sword();
+                break;
+            case "attack" :
+                attack();
                 break;
             case "gameOver" :
                 gameOver();
@@ -82,24 +92,16 @@ public class Story {
         gs.imageView.setImageResource(R.drawable.path);
         setTextView("You are on the road. There is the wooden sign nearby",
                 "What will you do?", "", "");
-        //setButtonsVisible(true, true, true, true);
-        gs.button_1.setVisibility(View.VISIBLE);
-        gs.button_2.setVisibility(View.VISIBLE);
-        gs.button_3.setVisibility(View.VISIBLE);
-        gs.button_4.setVisibility(View.VISIBLE);
+        setButtonsVisible(true, true, true, true);
         setButtonText("Go North", "Go East", "Go West", "Read the sign");
-        setNextPosition("monster", "sword", "pipe", "sign");
+        setNextPosition("gargoyle", "sword", "pipe", "sign");
     }
 
     public void sign() {
         gs.imageView.setImageResource(R.drawable.sign);
         setTextView("The sign says:",
                 "MONSTER AHEAD!!!", "", "");
-        //setButtonsVisible(true, false, false, false);
-        gs.button_1.setVisibility(View.VISIBLE);
-        gs.button_2.setVisibility(View.INVISIBLE);
-        gs.button_3.setVisibility(View.INVISIBLE);
-        gs.button_4.setVisibility(View.INVISIBLE);
+        setButtonsVisible(true, false, false, false);
         setButtonText("Back", "", "", "");
         setNextPosition("startingPoint", "", "", "");
     }
@@ -114,12 +116,35 @@ public class Story {
     }
 
     public void plant() {
-        gs.imageView.setImageResource(R.drawable.pipe);
-        setTextView("Piranha plant is inside.",
-                "You are eaten by it!!!", "", "");
-        setButtonsVisible(true, false, false, false);
-        setButtonText(">", "", "", "");
-        setNextPosition("gameOver", "", "", "");
+        if (equipment.sword == true) {
+            gs.imageView.setImageResource(R.drawable.pipe);
+            setTextView("You have defeated the piranha plant with your sword.",
+                    "You feel much stronger now.", "", "");
+            setButtonsVisible(true, false, false, false);
+            setButtonText("Back", "", "", "");
+            setNextPosition("startingPoint", "", "", "");
+
+            сharacteristics.piranhaPlantDefeated = true;
+            сharacteristics.monstersDefeated += 1;
+            сharacteristics.strength += 1;
+        } else {
+            gs.imageView.setImageResource(R.drawable.pipe);
+            setTextView("Piranha plant is inside.",
+                    "You are eaten by it!!!", "", "");
+            setButtonsVisible(true, false, false, false);
+            setButtonText(">", "", "", "");
+            setNextPosition("gameOver", "", "", "");
+        }
+    }
+
+    public void gargoyle() {
+        gs.imageView.setImageResource(R.drawable.gargoyle);
+        setTextView("A gargoyle suddenly attacks you.",
+                "",
+                "What will you do?", "");
+        setButtonsVisible(true, true, false, false);
+        setButtonText("Attack", "Run away", "", "");
+        setNextPosition("attack", "startingPoint", "", "");
     }
 
     public void sword() {
@@ -129,6 +154,30 @@ public class Story {
         setButtonsVisible(true, false, false, false);
         setButtonText("Back", "", "", "");
         setNextPosition("startingPoint", "", "", "");
+
+        equipment.sword = true;
+    }
+
+    public void attack() {
+        if (сharacteristics.piranhaPlantDefeated == true && equipment.sword && сharacteristics.strength > 1) {
+            gs.imageView.setImageResource(R.drawable.treasure);
+            setTextView("You defeated the gargoyle!...",
+                    "and found the treasure!!!", "You feel much stronger now.", "This is the end of your adventure.");
+            setButtonsVisible(true, false, false, false);
+            setButtonText("Go to main screen", "", "", "");
+            setNextPosition("goMainScreen", "", "", "");
+
+            сharacteristics.gargoyleDefeated = true;
+            сharacteristics.monstersDefeated += 1;
+            сharacteristics.strength += 1;
+        } else {
+            gs.imageView.setImageResource(R.drawable.gargoyle);
+            setTextView("You fought bravely and selflessly, but the gargoyle was stronger than you.",
+                    "It killed you", "", "");
+            setButtonsVisible(true, false, false, false);
+            setButtonText(">", "", "", "");
+            setNextPosition("gameOver", "", "", "");
+        }
     }
 
     public void gameOver() {
